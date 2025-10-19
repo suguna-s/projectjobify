@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import User from '../models/UserModel.js';
 import Job from '../models/JobModel.js';
 import cloudinary from 'cloudinary';
-import { promises as fs } from 'fs';
+import { formatImage } from '../middleware/multerMiddleware.js';
 
 export const getCurrentUser = async (req, res) => {
   const user = await User.findOne({ _id: req.user.userId });
@@ -18,8 +18,8 @@ export const getApplicationStats = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   if (req.file) {
-    const response = await cloudinary.v2.uploader.upload(req.file.path);
-    await fs.unlink(req.file.path);
+    const file = formatImage(req.file);
+    const response = await cloudinary.v2.uploader.upload(file);
     req.body.avatar = response.secure_url;
     req.body.avatarPublicId = response.public_id;
   }
